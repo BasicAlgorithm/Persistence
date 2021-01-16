@@ -13,7 +13,7 @@
 void test_directed_graph() {
 
 
-  std::cout << "Directed Graph EDITED FOR TESTING AND SECOND COMMIT ON THEORY"
+  std::cout << "Directed Graph"
             << "\n";
   // Create a DirectedGraph, a maximum of 5 edge for each node and the root with
   // the starting value of 1.

@@ -106,7 +106,7 @@ class DirectedGraph {
   DirectedGraph(data_type const& data, std::size_t const& out_ptrs_size) {
       Node *tmp = new Node(data, out_ptrs_size);
       root_ptr_ = tmp;
-      persistence_graph->insert_vertex(0, tmp, 1);
+      //persistence_graph->insert_vertex(0, tmp, 1);
       out_ptrs_size_ = out_ptrs_size;
   }
 
