@@ -135,7 +135,7 @@ namespace ADE {
                 Node* tmp = root_ptr_;
                 do
                 {
-                    std::cout << "node value = " << tmp->main_value << std::endl; //this only one - previous
+                    std::cout << tmp->main_value << " -> "; //this only one - previous
 
                     //std::cout << "a = " << tmp->which_version[0] << std::endl; //test
                     //std::cout << "b = " << tmp->which_version[1] << std::endl; //test
@@ -156,6 +156,7 @@ namespace ADE {
                     }
 
                 } while (tmp);
+                std::cout << '\n';
             }
 
         protected:
