@@ -8,136 +8,149 @@
 #include "persistence/partial_directed_graph.hpp"
 
 namespace ADE {
-namespace PointerMachine {
+    namespace PointerMachine {
 
-template <typename Type, typename Node>
-class DirectedGraph;
+        template <typename Type, typename Node>
+        class DirectedGraph;
 
 
-template <typename Type>
-class Node   {
- public:
-  typedef Type data_type;
+        template <typename Type>
+        class Node {
+        public:
+            typedef Type data_type;
 
-  Node() : data_(nullptr), forward_(nullptr), out_ptrs_size_(0) {}
+            Node() : data_(nullptr), forward_(nullptr), out_ptrs_size_(0) {}
 
-  Node(data_type const& data, std::size_t const& out_ptrs_size)
-      : data_(new data_type(data)), out_ptrs_size_(out_ptrs_size) {
-    forward_ = new Node<Type>*[out_ptrs_size]();
-  }
+            Node(data_type const& data, std::size_t const& out_ptrs_size, ADE::Persistence::PartialDirectedGraph<int, ADE::Persistence::PartialNode<int>>* version_graph)
+                : data_(new data_type(data)), out_ptrs_size_(out_ptrs_size) {
+                forward_ = new Node<Type>*[out_ptrs_size]();
+                version_graph_ = version_graph;
+            }
 
-  data_type get_data() { return *data_; }
+            data_type get_data() { return *data_; }
 
-  bool set_data(data_type const& data) {
-    data(new data_type(data_));
+            bool set_data(data_type const& data) {
+                data(new data_type(data_));
 
-    return true;
-  }
+                return true;
+            }
 
-  /**
-   *
-   *  \brief Insert element
-   *  Inserts an element at the location id and returns the vertex pointer for
-   * the new vertex.
-   *
-   */
-  Node* insert_vertex(std::size_t const& position, data_type const& data) {
-    if (out_ptrs_size_ < position) {
-      throw std::out_of_range("Insert position is out of edges range.");
-    }
-    Node* next_node_ptr = forward_[position];
-    Node* new_node = new Node(data, out_ptrs_size_);
+            /**
+             *
+             *  \brief Insert element
+             *  Inserts an element at the location id and returns the vertex pointer for
+             * the new vertex.
+             *
+             */
+            Node* insert_vertex(std::size_t const& position, data_type const& data) {
+                if (out_ptrs_size_ < position) {
+                    throw std::out_of_range("Insert position is out of edges range.");
+                }
 
-    new_node->forward_[position] = next_node_ptr;
+                Node* next_node_ptr = forward_[position];
+                Node* new_node = new Node(data, out_ptrs_size_, version_graph_);
 
-    forward_[position] = new_node;
+                version_graph_->insert_vertex(*data_, data, position);
 
-    
-    return forward_[position];
-  }
+                new_node->forward_[position] = next_node_ptr;
 
-  /**
-   *  \brief Attachs two nodes
-   *
-   *  Adds an edge to v and throws and exception of type std::out_of_range
-   * if position is not within the range of u nodes.
-   *
-   */
-  bool update_edge(std::size_t const& position, Node* v) {
-    if (out_ptrs_size_ < position) {
-      throw std::out_of_range("Position out of first argument node.");
-    }
-    forward_[position] = v;
-    return true;
-  }
+                forward_[position] = new_node;
 
-  /**
-   *  \brief Access specified element
-   *
-   *  Returns a reference to the element at specified location position. If id
-   * is not within the range of the container an exception of type
-   * std::out_of_range is thrown. If no node exist at the location
-   * std::logic_error is thrown.
-   *
-   */
-  Node& operator[](std::size_t const& id) const {
-    if (out_ptrs_size_ < id) {
-      throw std::out_of_range("Index out of node edges range.");
-    }
-    if (!forward_[id]) {
-      throw std::logic_error("Access to null reference.");
-    }
-    return *forward_[id];
-  }
+                return forward_[position];
+            }
 
- private:
-  data_type* data_;
-  std::size_t out_ptrs_size_;
-  Node** forward_;
+            /**
+             *  \brief Attachs two nodes
+             *
+             *  Adds an edge to v and throws and exception of type std::out_of_range
+             * if position is not within the range of u nodes.
+             *
+             */
+            bool update_edge(std::size_t const& position, Node* v) {
+                if (out_ptrs_size_ < position) {
+                    throw std::out_of_range("Position out of first argument node.");
+                }
+                forward_[position] = v;
+                return true;
+            }
 
-  friend class DirectedGraph<Type, Node>;
-};
+            /**
+             *  \brief Access specified element
+             *
+             *  Returns a reference to the element at specified location position. If id
+             * is not within the range of the container an exception of type
+             * std::out_of_range is thrown. If no node exist at the location
+             * std::logic_error is thrown.
+             *
+             */
+            Node& operator[](std::size_t const& id) const {
+                if (out_ptrs_size_ < id) {
+                    throw std::out_of_range("Index out of node edges range.");
+                }
+                if (!forward_[id]) {
+                    throw std::logic_error("Access to null reference.");
+                }
+                return *forward_[id];
+            }
 
-template <typename Type, typename Node>
-class DirectedGraph {
- public:
-  typedef Type data_type;
+        private:
+            data_type* data_;
+            std::size_t out_ptrs_size_;
+            Node** forward_;
 
-  DirectedGraph(data_type const& data, std::size_t const& out_ptrs_size) {
-      Node *tmp = new Node(data, out_ptrs_size);
-      root_ptr_ = tmp;
-      //persistence_graph->insert_vertex(0, tmp, 1);
-      out_ptrs_size_ = out_ptrs_size;
-  }
+            ADE::Persistence::PartialDirectedGraph<int, ADE::Persistence::PartialNode<int>>* version_graph_;
 
-  virtual ~DirectedGraph() {}
+            friend class DirectedGraph<Type, Node>;
+        };
 
-  Node* get_root_ptr() { return root_ptr_; }
+        template <typename Type, typename Node>
+        class DirectedGraph {
+        public:
+            typedef Type data_type;
 
-  Node get_root() { return *root_ptr_; }
+            DirectedGraph(data_type const& data, std::size_t const& out_ptrs_size) {
 
-  /**
-   *  \brief Attachs two nodes
-   *
-   *  Adds edge from u to v and throws and exception of type std::out_of_range
-   * if position is not within the range of u nodes,
-   *
-   */
-  bool add_edge(Node* u, Node* v, std::size_t const& position) {
-    if (u->out_ptrs_size_ < position) {
-      throw std::out_of_range("Position out of first argument node.");
-    }
-    u->forward_[position] = v;
-    return true;
-  }
+                ADE::Persistence::PartialDirectedGraph<int, ADE::Persistence::PartialNode<int>>
+                    * version_graph_tmp =
+                    new ADE::Persistence::PartialDirectedGraph<int, ADE::Persistence::PartialNode<int>>(data, out_ptrs_size, 99);
 
- protected:
-  Node* root_ptr_;
-  std::size_t out_ptrs_size_;
-  ADE::Persistence::PartialDirectedGraph<int, ADE::PointerMachine::Node<int>>* version_graph;
+                version_graph = version_graph_tmp;
 
-};
+                Node* tmp = new Node(data, out_ptrs_size, version_graph);
+                root_ptr_ = tmp;
+                out_ptrs_size_ = out_ptrs_size;
 
-}  // namespace PointerMachine
+            }
+
+            virtual ~DirectedGraph() {}
+
+            Node* get_root_ptr() { return root_ptr_; }
+
+            Node get_root() { return *root_ptr_; }
+
+            /**
+             *  \brief Attachs two nodes
+             *
+             *  Adds edge from u to v and throws and exception of type std::out_of_range
+             * if position is not within the range of u nodes,
+             *
+             */
+            bool add_edge(Node* u, Node* v, std::size_t const& position) {
+                if (u->out_ptrs_size_ < position) {
+                    throw std::out_of_range("Position out of first argument node.");
+                }
+                u->forward_[position] = v;
+                return true;
+            }
+
+            ADE::Persistence::PartialDirectedGraph<int, ADE::Persistence::PartialNode<int>>* version_graph;
+        protected:
+            Node* root_ptr_;
+            std::size_t out_ptrs_size_;
+
+
+        };
+
+    }  // namespace PointerMachine
 }  // namespace ADE
 #endif  // SOURCE_POINTER_MACHINE_DIRECTED_GRAPH_HPP_

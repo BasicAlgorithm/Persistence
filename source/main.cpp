@@ -13,49 +13,55 @@
 void test_directed_graph() {
 
 
-  std::cout << "Directed Graph"
-            << "\n";
-  // Create a DirectedGraph, a maximum of 5 edge for each node and the root with
-  // the starting value of 1.
-  ADE::PointerMachine::DirectedGraph<int, ADE::PointerMachine::Node<int>>
-      my_graph(1, 5);
+    std::cout << "Directed Graph" << "\n";
+    // Create a DirectedGraph, a maximum of 5 edge for each node and the root with
+    // the starting value of 1.
+    ADE::PointerMachine::DirectedGraph<int, ADE::PointerMachine::Node<int>> my_graph(1, 5);
 
-  // We can obtain the root and print their value.
-  ADE::PointerMachine::Node<int>* root_ptr = my_graph.get_root_ptr();
-  std::cout << "Root Value: " << root_ptr->get_data() << "\n";  // 1[0-5]
+    //TEST 01
+    std::cout << "***START TESTING 1***" << "\n";
+    my_graph.version_graph->print_version();
+    std::cout << "***END TESTING***" << "\n";
 
-  // Also, we can insert a new vertex passing the new Node value, and the index
-  // of the pointer that will be used to point the inserted node.
-  my_graph.get_root().insert_vertex(0, 2);  // 1[0] -> 2[0-5]
+    // We can obtain the root and print their value.
+    ADE::PointerMachine::Node<int>* root_ptr = my_graph.get_root_ptr();
+    std::cout << "Root Value: " << root_ptr->get_data() << "\n";  // 1[0-5]
 
-  std::cout << "Inserted Value: " << my_graph.get_root()[0].get_data()
-            << "\n";  // 2
+    // Also, we can insert a new vertex passing the new Node value, and the index
+    // of the pointer that will be used to point the inserted node.
+    my_graph.get_root().insert_vertex(0, 2);  // 1[0] -> 2[0-5]                       //HERE
 
-  // Likewise, the method to insert a new vertex, returns a reference of the
-  // new vertex inserted.
-  ADE::PointerMachine::Node<int>* other_inserted_node_ptr =
-      my_graph.get_root()[0].insert_vertex(1, 3);  // 1[0] -> 2[1] -> 3[0-5]
+    std::cout << "Inserted Value: " << my_graph.get_root()[0].get_data()
+        << "\n";  // 2
 
-  std::cout << "Inserted Value: " << my_graph.get_root()[0][1].get_data()
-            << "\n";  // 3
+//TEST 02
+    std::cout << "***START TESTING 2***" << "\n";
+    my_graph.version_graph->print_version();
+    std::cout << "***END TESTING***" << "\n";
 
-  // To add an edge between two vertex, we call the function update edge from
-  // the startin Node with the index id that will link both nodes.
-  my_graph.get_root().update_edge(1,
-                                  other_inserted_node_ptr);  // 1[0] -> 2[1] -> 3[0-5]
-                                                             // 1[1] -> 3[0-5]
+    // Likewise, the method to insert a new vertex, returns a reference of the
+    // new vertex inserted.
+    ADE::PointerMachine::Node<int>* other_inserted_node_ptr =
+        my_graph.get_root()[0].insert_vertex(1, 3);  // 1[0] -> 2[1] -> 3[0-5]
 
-  std::cout << "Following other Edge: " << my_graph.get_root()[1].get_data() // 3
-            << "\n";
+    std::cout << "Inserted Value: " << my_graph.get_root()[0][1].get_data()
+        << "\n";  // 3
 
-  std::cout << "Imprimiendo las versiones del grafo" << std::endl;
-  std::cout << "VERSION 01" << std::endl;
+// To add an edge between two vertex, we call the function update edge from
+// the startin Node with the index id that will link both nodes.
+    my_graph.get_root().update_edge(1,
+        other_inserted_node_ptr);  // 1[0] -> 2[1] -> 3[0-5]
+                                   // 1[1] -> 3[0-5]
+
+    std::cout << "Following other Edge: " << my_graph.get_root()[1].get_data() // 3
+        << "\n";
+
 }
 
 int main() {
-  test_directed_graph();
+    test_directed_graph();
 
-  return 0;
+    return 0;
 }
 
 /*
